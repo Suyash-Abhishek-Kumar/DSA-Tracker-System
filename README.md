@@ -126,9 +126,7 @@ Work in progress.
 Planned improvements:
 
 - Automatic problem scraping from DSA sheets
-- Web interface / dashboard
 - Better progress analytics
-- Difficulty-based recommendations
 - API integration for question datasets
 
 ---
