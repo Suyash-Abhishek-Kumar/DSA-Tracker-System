@@ -88,7 +88,8 @@ def insert_data(conn, c, dsa_topics, prerequisites):
 
 if __name__ == "__main__":
     conn, c = create_db()
-    # insert_data(conn, c, dsa_topics, topic_prerequisites)
+    insert_data(conn, c, dsa_topics, topic_prerequisites)
+    c.execute('UPDATE dsa SET prerequisites = "Basics, Arrays" WHERE topic = "Strings"')
     # desc_table(conn, c, "dsa")
     # select_all(conn, c, "dsa")
     conn.close()
