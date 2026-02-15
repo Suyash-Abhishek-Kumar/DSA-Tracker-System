@@ -65,10 +65,10 @@ def insert_data(conn, c, dsa_topics, prerequisites):
         prereq_str = ', '.join(prereq)
         if isinstance(subtopics, dict):
             for subtopic, num_q in subtopics.items():
-                if topic_name == "Basics" or topic_name == "Sorting Techniques":
+                if topic_name == "Basics" or topic_name == "Sorting Techniques" or (topic_name == "Arrays" and subtopic != "Hard"):
                     num_done = num_q
-                elif topic_name == "Arrays":
-                    num_done = 30
+                elif topic_name == "Arrays" and subtopic == "Hard":
+                    num_done = 2
                 else:
                     num_done = 0
                 c.execute('INSERT INTO dsa VALUES (?, ?, ?, ?, ?)',
@@ -86,10 +86,58 @@ def insert_data(conn, c, dsa_topics, prerequisites):
                       (topic_name, topic_name, prereq_str, num_q, num_done))
     conn.commit()
 
+def update_status(conn, c):
+    """Update question completion status from a CSV file"""
+    try:
+        print(1)
+        csv_file = "curr_doing.csv"
+        df = pandas.read_csv(csv_file)
+        print(2)
+        print(df)
+        # Assuming CSV has 'topic' and 'subtopic' columns
+        for _, row in df.iterrows():
+            print("2." + str(_))
+            topic = row['topic']
+            subtopic = row['subtopic']
+            c.execute('''UPDATE dsa SET number_of_questions_done = number_of_questions_done + 1 
+                         WHERE topic = ? AND subtopic = ?''', (topic, subtopic))
+        print(3)
+        conn.commit()
+        print(f"Updated {c.rowcount} records successfully.")
+
+    except FileNotFoundError:
+        print("CSV file not found.")
+    except KeyError as e:
+        print(f"CSV column not found: {e}")
+    except Exception as e:
+        print(f"Error: {e}")
+
 if __name__ == "__main__":
     conn, c = create_db()
-    insert_data(conn, c, dsa_topics, topic_prerequisites)
-    c.execute('UPDATE dsa SET prerequisites = "Basics, Arrays" WHERE topic = "Strings"')
-    # desc_table(conn, c, "dsa")
-    # select_all(conn, c, "dsa")
-    conn.close()
+    # insert_data(conn, c, dsa_topics, topic_prerequisites)
+    # conn.commit()
+
+    while True:
+        print("\n" + "="*50)
+        print("DSA Trainer Menu")
+        print("="*50)
+        print("1. View table structure")
+        print("2. View all topics")
+        print("3. Update question status from CSV")
+        print("4. Exit")
+        print("="*50)
+        
+        choice = input("Enter your choice (1-4): ").strip()
+        
+        if choice == "1":
+            desc_table(conn, c, "dsa")
+        elif choice == "2":
+            select_all(conn, c, "dsa")
+        elif choice == "3":
+            update_status(conn, c)
+        elif choice == "4":
+            print("Exiting...")
+            conn.close()
+            break
+        else:
+            print("Invalid choice. Please try again.")

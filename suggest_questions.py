@@ -1,5 +1,6 @@
 import sqlite3
 import random
+import csv
 
 def get_done_prerequisites(conn):
     c = conn.cursor()
@@ -29,6 +30,7 @@ def get_eligible_questions(conn, done_topics):
     return eligible
 
 def suggest_questions():
+    topics = [["topic", "subtopic"]]
     conn = sqlite3.connect('dsa_topics.db')
     done_topics = get_done_prerequisites(conn)
     eligible = get_eligible_questions(conn, done_topics)
@@ -38,7 +40,12 @@ def suggest_questions():
         return
     suggestions = random.sample(eligible, min(10, len(eligible)))
     for topic, subtopic, q_num in suggestions:
-        print(f"{topic} - {subtopic} : Question #{q_num}")          # q_num refers to the nth unsolved question
+        topics.append([topic, subtopic])
+        print(f"{topic} - {subtopic} : Question #{q_num}")
+    
+    with open('curr_doing.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerows(topics)
 
 if __name__ == "__main__":
     suggest_questions()
